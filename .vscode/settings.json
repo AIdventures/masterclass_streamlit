@@ -1,0 +1,32 @@
+{
+    "files.exclude": {
+        "**/.venv": true,
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/.ipynb_checkpoints":true,
+        "**/**.egg-info":true,
+        "**/build":true,
+        "**/.ruff_cache":true,
+        "**/.mypy_cache":true,
+        "*.amlignore*":true
+    },
+    "[python]":{
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit"
+        }
+    },
+    "black-formatter.args": ["--line-length", "88"],
+    "isort.args": ["--profile", "black"],
+    "python.envFile": "${workspaceFolder}/.env",
+    "python.condaPath": "conda",
+    "python.terminal.activateEnvironment": true,
+    "python.defaultInterpreterPath": "${env:HOME}/anaconda3/envs/erratum/bin/python",
+    "notebook.output.wordWrap": true,
+    "jupyter.notebookFileRoot": "${workspaceFolder}/",
+    "editor.rulers": [88],
+    "workbench.colorCustomizations": {
+        "editorRuler.foreground": "#bbbbbb2a"
+    }
+}

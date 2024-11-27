@@ -1,0 +1,8 @@
+streamlit==1.26.0
+chromadb==0.3.26
+sentence_transformers==2.2.2
+openai==0.27.9
+plotly==5.16.1
+pandas==2.0.2
+chonkie
+transformers
