@@ -42,7 +42,7 @@ Note that you need to specify the OPENAI_API_KEY environment variable, which is 
 
 # To-Dos
 
-- [x] Check sentiment analysis app
-- [ ] Check QA app
+- [x] Check sentiment analysis app: App and Requirements
+- [ ] Check QA app: App and Requirements
 - [x] Check Deployment - Docker
 - [ ] Environment setup: `requirements.txt` and pre-commit hooks explained
