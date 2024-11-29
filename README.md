@@ -34,15 +34,15 @@ For deployment, we suggest using Docker in combination with the provider that be
 Using [Docker with Streamlit](https://docs.streamlit.io/knowledge-base/tutorials/deploy/docker) is straightforward. You need to create a Dockerfile, which you can find in this repository ([here](Dockerfile)). This file specifies the base image, which in this case is the official Streamlit image, and copies the application file to the container’s working directory. To build the image and run the container, use the following commands:
 
 ```bash
-docker build -t st-qa .
-docker run -p 8501:8501 -e OPENAI_API_KEY=$OPENAI_API_KEY st-qa
+docker build -t st-sentiment .
+docker run -p 8501:8501 st-sentiment
 ```
 
 Note that you need to specify the OPENAI_API_KEY environment variable, which is the OpenAI API key. This key can be obtained on the [OpenAI website](https://openai.com/).
 
 # To-Dos
 
-- [ ] Check sentiment analysis app
+- [x] Check sentiment analysis app
 - [ ] Check QA app
-- [ ] Check Deployment - Docker
+- [x] Check Deployment - Docker
 - [ ] Environment setup: `requirements.txt` and pre-commit hooks explained
