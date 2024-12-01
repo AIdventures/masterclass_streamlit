@@ -9,53 +9,54 @@ References:
 """
 
 import os
-import uuid
 import fitz  # PyMuPDF
 import tempfile
-import chromadb
 import streamlit as st
-from sentence_transformers import SentenceTransformer
 
 from openai import OpenAI
-from chonkie import SentenceChunker
-from autotiktokenizer import AutoTikTokenizer
 
 ########################################################################################
 # Initial Configuration ################################################################
 ########################################################################################
-# Split documents into smaller chunks
-tokenizer = AutoTikTokenizer.from_pretrained("gpt2")
-TEXT_SPLITTER = SentenceChunker(
-    tokenizer=tokenizer, chunk_size=512, chunk_overlap=128, min_sentences_per_chunk=1
-)
-
-MODEL_EMBEDDINGS = SentenceTransformer("all-MiniLM-L6-v2")
-
-DB_CLIENT = chromadb.Client()
-DB_COLLECTION = DB_CLIENT.get_or_create_collection(name="streamlit_course")
-
 SYSTEM_PROMPT = """
 You are an exceptional reader that gently answers questions.
+
+Your task is to answer questions from customers in a concise and informative way.
 """
 
-USER_TEMPLATE = """
-You are an exceptional reader that gently answers questions.
+INITIAL_USER_TEMPLATE = """
+Given the following context information:
 
-You know the following context information:
+{document_text}
 
-{chunks_formatted}
-
-Answer the following question from a customer.
-Use only information from the previous context information.
-Do not invent information.
+Answer the following question using only information
+from the previous context information.
+Do not made up any information.
 
 Question: {query}
 
 Answer:
 """
 
+HISTORY_USER_TEMPLATE = """
+Given the following context information:
 
-LLM = OpenAI()
+{document_text}
+
+The conversation so far:
+
+{conversation_history}
+
+Answer the following question using only information
+from the previous context information, conversation history, and the new question.
+
+Question: {query}
+
+Answer:
+"""
+
+if "doc" not in st.session_state:
+    st.session_state["doc"] = ""
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = [
@@ -66,10 +67,23 @@ if "messages" not in st.session_state:
 st.write("# 🤖 Talk with your data")
 # Sidebar
 st.sidebar.title("ℹ️ About")
-st.sidebar.info(
-    "This app uses ChromaDB to store and retrieve information from a PDF document. "
-    "To start, upload a PDF file and ask a question."
+st.sidebar.info("To start, upload a PDF file and ask a question.")
+
+user_openai_key = st.sidebar.text_input(
+    "OpenAI API key",
+    value=os.environ.get("OPENAI_API_KEY", ""),
+    type="password",
 )
+
+if not user_openai_key:
+    st.warning(
+        "Please provide an OpenAI API key to use the chatbot. "
+        "You can get one by signing up at https://platform.openai.com"
+    )
+    st.stop()
+
+LLM = OpenAI(api_key=user_openai_key)
+
 
 ########################################################################################
 # Data Processing ######################################################################
@@ -78,43 +92,17 @@ uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 if uploaded_file is None:
     st.stop()  # Stop the script execution if no file is uploaded
 
-pid = str(uuid.uuid4())
+if st.session_state.doc == "":
+    with st.spinner("Loading the document..."):
+        # Load the PDF file uploaded by the user and split it
+        temp_dir = tempfile.TemporaryDirectory()
+        temp_filepath = os.path.join(temp_dir.name, uploaded_file.name)
+        with open(temp_filepath, "wb") as f:
+            f.write(uploaded_file.getvalue())
 
-with st.spinner("Loading and splitting the document..."):
-    # Load the PDF file uploaded by the user and split it
-    temp_dir = tempfile.TemporaryDirectory()
-    temp_filepath = os.path.join(temp_dir.name, uploaded_file.name)
-    with open(temp_filepath, "wb") as f:
-        f.write(uploaded_file.getvalue())
-
-    loader = fitz.open(temp_filepath)
-
-    loader = fitz.open(temp_filepath)
-    doc = ""
-    for page_num in range(len(doc)):  # Extract text from each page
-        page = doc[page_num]
-        doc += f"{page.get_text()}\n"
-
-    chunks = TEXT_SPLITTER.chunk(doc)
-    st.success("Document loaded and split successfully")
-
-# Add generated chunks to our ChromaDB database
-with st.spinner("Adding documents to the database..."):
-    for chunk in chunks:
-        chunk_embedded = MODEL_EMBEDDINGS.encode(chunk.text)
-
-        # We don't need to handle the state of the app because the collection
-        # is stored on disk and its state is "preserved" between runs
-        DB_COLLECTION.add(
-            documents=[chunk.text],
-            embeddings=[chunk_embedded.tolist()],
-            metadatas=[{"pid": pid}],
-            ids=[str(uuid.uuid4())],
-        )
-    st.success("Documents added to ChromaDB!")
-    # Show the number of documents in the database
-    st.info(f"The database contains {DB_COLLECTION.count()} documents")
-
+        loader = fitz.open(temp_filepath)
+        st.session_state.doc = "".join([page.get_text() + "\n" for page in loader])
+        st.success("Document loaded successfully")
 
 ########################################################################################
 # Chat with user #######################################################################
@@ -128,15 +116,21 @@ for msg in st.session_state.messages:
 if query := st.chat_input():
     st.chat_message("user").write(query)
 
-    query_embedded = MODEL_EMBEDDINGS.encode(query)
-    similar_chunks = DB_COLLECTION.query(
-        query_embeddings=[query_embedded.tolist()], n_results=3, where={"pid": pid}
-    )
-    retrieved_chunks = [chunk for chunk in similar_chunks["documents"][0]]
-
     # Format the prompt
-    chunks_formatted = "\n\n".join(retrieved_chunks)
-    user_prompt = USER_TEMPLATE.format(chunks_formatted=chunks_formatted, query=query)
+    if len(st.session_state.messages) == 1:  # First question
+        user_prompt = INITIAL_USER_TEMPLATE.format(
+            document_text=st.session_state.doc, query=query
+        )
+    else:  # Subsequent questions
+        conversation_history = ""
+        for msg in st.session_state.messages:
+            conversation_history += f"{msg['role']}: {msg['content']}\n"
+
+        user_prompt = HISTORY_USER_TEMPLATE.format(
+            document_text=st.session_state.doc,
+            conversation_history=conversation_history,
+            query=query,
+        )
 
     # Generate answer
     response = (

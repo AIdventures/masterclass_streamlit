@@ -43,6 +43,8 @@ Note that you need to specify the OPENAI_API_KEY environment variable, which is 
 # To-Dos
 
 - [x] Check sentiment analysis app: App and Requirements
-- [ ] Check QA app: App and Requirements
+- [x] Check QA app: App and Requirements
 - [x] Check Deployment - Docker
+- [ ] Review README.md
 - [ ] Environment setup: `requirements.txt` and pre-commit hooks explained
+- [ ] Upload slides
