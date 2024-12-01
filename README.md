@@ -1,12 +1,22 @@
 # Streamlit Course
 
+## Index
+
+- [Introduction](#introduction)
+- [Execution](#execution)
+- [Requirements](#requirements)
+- [Deployment](#deployment)
+- [Environment Setup](#environment-setup)
+  - [Installing Dependencies](#installing-dependencies)
+  - [Configuring Pre-Commit Hooks](#configuring-pre-commit-hooks)
+- [Notes](#notes)
+
 ## Introduction
 
-This repository contains the code for the applications developed in the Streamlit course. There are three applications, which can be found at the following paths:
+This repository contains the code for the applications developed in the Streamlit course. There are two applications, which can be found at the following paths:
 
-- [MNIST Analysis](mnist_analisis.py): Application that allows analysis of the [MNIST dataset](https://en.wikipedia.org/wiki/MNIST_database). It loads the test set of the MNIST dataset, allowing users to explore the images and their labels. Additionally, images can be filtered by label, and the pixel value distributions are shown divided by label.
-- [MNIST Prediction](mnist_prediccion.py): Application that allows users to draw on a canvas and predict the number they have drawn. This uses a pre-trained MNIST image classification model.
-- [PDF Document Q&A](qa.py): Application that allows users to upload a PDF document and ask questions about it. This uses the OpenAI API, which allows for text-based questions. In this case, the text is the content of the PDF document. The [PyPDF](https://pypi.org/project/pypdf/) library is used to extract text from the PDF. The [Sentence Transformers](https://www.sbert.net/) library is used to generate embeddings for both the PDF content and the questions. This library generates embeddings for phrases, which are used to calculate similarity between questions and answers. Finally, the [ChromaDB](https://www.trychroma.com/) library is used to store embeddings and search for answers.
+- [Sentiment Analysis](sentiment_analysis.py): Application that performs sentiment analysis on text using a Hugging Face pipeline. It allows users to input text and get a sentiment analysis result, which is visualized using Plotly.
+- [PDF Document Q&A](qa.py): Application that allows users to upload a PDF document and ask questions about it. This uses the OpenAI API, which allows for text-based questions. The [PyMuPDF](https://pypi.org/project/PyMuPDF/) library is used to extract text from the PDF. The [Sentence Transformers](https://www.sbert.net/) library is used to generate embeddings for both the PDF content and the questions. Finally, the [ChromaDB](https://www.trychroma.com/) library is used to store embeddings and search for answers.
 
 ## Execution
 
@@ -18,14 +28,14 @@ streamlit run <application_path>
 
 ### Requirements
 
-To run the applications, you must install the dependencies specified in the [requirements.txt](requirements.txt) file. The Python version used is `3.9`. It's recommended to use a virtual environment for installing the necessary packages. There are several options for this; here, installation with [conda](https://docs.conda.io/en/latest/) is shown.
+To run the applications, you must install the dependencies specified in the respective requirements files. The Python version used is `3.11`. It's recommended to use a virtual environment for installing the necessary packages. There are several options for this; here, installation with [conda](https://docs.conda.io/en/latest/) is shown.
 
 ```bash
-conda create --name <name> python==3.9
+conda create --name <name> python==3.11
 conda activate <name>
-pip install -r requirements.txt
+pip install -r requirements_sentiment.txt  # For Sentiment Analysis
+pip install -r requirements_qa.txt  # For PDF Document Q&A
 ```
-
 
 ## Deployment
 
@@ -38,13 +48,30 @@ docker build -t st-sentiment .
 docker run -p 8501:8501 st-sentiment
 ```
 
-Note that you need to specify the OPENAI_API_KEY environment variable, which is the OpenAI API key. This key can be obtained on the [OpenAI website](https://openai.com/).
+## Environment Setup
 
-# To-Dos
+To set up the environment, you need to install the dependencies and configure pre-commit hooks. The pre-commit hooks ensure code quality and consistency by running various checks and formatters before each commit.
 
-- [x] Check sentiment analysis app: App and Requirements
-- [x] Check QA app: App and Requirements
-- [x] Check Deployment - Docker
-- [ ] Review README.md
-- [ ] Environment setup: `requirements.txt` and pre-commit hooks explained
-- [ ] Upload slides
+### Installing Dependencies
+
+Install the dependencies specified in the requirements files:
+
+```bash
+pip install -r requirements_sentiment.txt  # For Sentiment Analysis
+pip install -r requirements_qa.txt  # For PDF Document Q&A
+```
+
+### Configuring Pre-Commit Hooks
+
+Install pre-commit and set up the hooks:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+The pre-commit configuration is specified in the [.pre-commit-config.yaml](.pre-commit-config.yaml) file. It includes hooks for checking code formatting, linting, and other quality checks.
+
+## Notes
+
+- You need to specify the `OPENAI_API_KEY` environment variable, which is the OpenAI API key. This key can be obtained on the [OpenAI website](https://openai.com/).
