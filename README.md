@@ -1,5 +1,7 @@
 # Streamlit Course
 
+![Welcome Illustration](welcome.webp "Welcome Illustration")
+
 ## Index
 
 - [Project Overview](#project-overview)
