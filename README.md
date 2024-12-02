@@ -2,6 +2,7 @@
 
 ## Index
 
+- [Project Overview](#project-overview)
 - [Introduction](#introduction)
 - [Execution](#execution)
 - [Requirements](#requirements)
@@ -10,6 +11,26 @@
   - [Installing Dependencies](#installing-dependencies)
   - [Configuring Pre-Commit Hooks](#configuring-pre-commit-hooks)
 - [Notes](#notes)
+
+
+
+## Project Overview
+
+```
+├── .vscode              <- Visual Studio Code settings
+│   └── settings.json    <- Evaluation functions
+|
+├── sentiment_analysis.py       <- Sentiment Analysis application
+├── requirements_sentiment.txt  <- Requirements for Sentiment Analysis application
+├── qa.py                       <- PDF Document Q&A application
+├── requirements_qa.txt         <- Requirements for PDF Document Q&A application
+├── Dockerfile                  <- Dockerfile for deploy Sentiment Analysis application
+├── presentation.pdf            <- Presentation slides
+├── .pre-commit-config.yaml     <- Configuration for pre-commit hooks
+├── .gitignore                  <- Specifies intentionally untracked files to ignore
+└── README.md                   <- The top-level README for developers using this project
+```
+
 
 ## Introduction
 
@@ -75,3 +96,4 @@ The pre-commit configuration is specified in the [.pre-commit-config.yaml](.pre-
 ## Notes
 
 - You need to specify the `OPENAI_API_KEY` environment variable, which is the OpenAI API key. This key can be obtained on the [OpenAI website](https://openai.com/).
+- A Canva presentation with the course content can be found [here](https://www.canva.com/design/DAGWYUE4Pis/n11RG34ek8JiyqeNHWkgXQ/edit?utm_content=DAGWYUE4Pis&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton).
